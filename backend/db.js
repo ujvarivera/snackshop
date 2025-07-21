@@ -17,7 +17,7 @@ db.prepare(`
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         price INTEGER NOT NULL,
-        currency TEXT NOT NULL,
+        currency TEXT NOT NULL DEFAULT 'HUF',
         stock INTEGER NOT NULL
     )
 `).run();

@@ -11,6 +11,103 @@ fastify.get('/api/products', (req, res) => {
     res.send(products);
 });
 
+fastify.post('/api/products', async (req, res) => {
+    
+    // if not logged in
+
+    // if not admin
+
+    // else
+    const { name, price, stock } = req.body;
+
+    if (name == null || price == null || stock == null) {
+        return res.status(400).send({ error: 'Missing required fields' });
+    }
+
+    const insert = db.prepare(`
+        INSERT INTO products (name, price, stock)
+        VALUES (?, ?, ?)
+    `);
+    const result = insert.run(name, price, stock);
+
+    return res.send({ id: result.lastInsertRowid, name, price, stock });
+});
+
+fastify.put('/api/products/:id', async (req, res) => {
+    const { id } = req.params;
+    const { name, price, stock } = req.body;
+
+    // Validate id
+    if (!id) {
+        return res.status(400).send({ error: 'Missing product ID' });
+    }
+
+    if (!name && price == null && stock == null) {
+        return res.status(400).send({ error: 'At least one field (name, price, stock) is required to update' });
+    }
+
+    // Build dynamic query parts
+    const fields = [];
+    const values = [];
+
+    if (name) {
+        fields.push('name = ?');
+        values.push(name);
+    }
+    if (price != null) {
+        fields.push('price = ?');
+        values.push(price);
+    }
+    if (stock != null) {
+        fields.push('stock = ?');
+        values.push(stock);
+    }
+
+    values.push(id);  // for WHERE id=?
+
+    try {
+        const update = db.prepare(`
+            UPDATE products SET ${fields.join(', ')} WHERE id = ?
+        `);
+        const result = update.run(...values);
+
+        if (result.changes === 0) {
+            return res.status(404).send({ error: 'Product not found' });
+        }
+
+        // Return updated product
+        const select = db.prepare('SELECT * FROM products WHERE id = ?');
+        const updatedProduct = select.get(id);
+
+        res.send(updatedProduct);
+    } catch (err) {
+        res.status(500).send({ error: 'Failed to update product', details: err.message });
+    }
+});
+
+fastify.delete('/api/products/:id', async (req, reply) => {
+  const { id } = req.params;
+
+  if (!id) {
+    return reply.status(400).send({ error: 'Missing product ID' });
+  }
+
+  try {
+    const del = db.prepare('DELETE FROM products WHERE id = ?');
+    const result = del.run(id);
+
+    if (result.changes === 0) {
+      return reply.status(404).send({ error: 'Product not found' });
+    }
+
+    reply.send({ message: `Product with id ${id} deleted successfully.` });
+  } catch (err) {
+    reply.status(500).send({ error: 'Failed to delete product', details: err.message });
+  }
+});
+
+
+
 const start = async () => {
     try {
         await fastify.listen({ port: PORT });
