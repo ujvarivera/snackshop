@@ -4,6 +4,12 @@ const fastify = require('fastify')({
 
 const PORT = 3000;
 
+const products = require('./products');
+
+fastify.get('/api/products', (req, res) => {    
+    res.send(products);
+});
+
 const start = async () => {
     try {
         await fastify.listen({ port: PORT });
