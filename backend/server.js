@@ -4,10 +4,17 @@ const fastify = require('fastify')({
 const db = require('./db');
 const bcrypt = require('bcrypt');
 const fastifyCookie = require('fastify-cookie');
+const fastifyCors = require('fastify-cors');
 
 fastify.register(fastifyCookie, {
   secret: 'supersecretkey',
   parseOptions: {}
+});
+
+const ORIGIN = 'http://localhost:5173'; // where React runs
+fastify.register(fastifyCors, {
+  origin: ORIGIN,
+  credentials: true, // allow cookies to be sent
 });
 
 const PORT = 3000;
