@@ -2,6 +2,7 @@ const fastify = require('fastify')({
     logger: true,
 });
 const db = require('./db');
+const bcrypt = require('bcrypt');
 
 const PORT = 3000;
 
@@ -187,6 +188,58 @@ fastify.get('/api/orders', async (req, res) => {
   }
 });
 
+
+fastify.post('/api/register', async (req, res) => {
+  const { name, password } = req.body;
+
+  if (!name || !password) {
+    return res.status(400).send({ error: 'Name and password are required' });
+  }
+
+  try {
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const insertUser = db.prepare(`
+      INSERT INTO users (name, password)
+      VALUES (?, ?)
+    `);
+
+    const result = insertUser.run(name, hashedPassword);
+
+    return res.status(201).send({ id: result.lastInsertRowid, name });
+  } catch (err) {
+    return res.status(500).send({ error: 'Failed to register user', details: err.message });
+  }
+});
+
+
+fastify.post('/api/login', async (req, res) => {
+  const { name, password } = req.body;
+
+  if (!name || !password) {
+    return res.status(400).send({ error: 'Name and password are required' });
+  }
+
+  try {
+    const user = db.prepare('SELECT * FROM users WHERE name = ?').get(name);
+
+    if (!user) {
+      // User not found
+      return res.send({ authenticated: false, isAdmin: false });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+      return res.send({ authenticated: false, isAdmin: false });
+    }
+
+    return res.send({ authenticated: true, isAdmin: Boolean(user.is_admin) });
+  } catch (err) {
+    return res.status(500).send({ error: 'Login failed', details: err.message });
+  }
+});
 
 const start = async () => {
     try {
