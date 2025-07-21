@@ -4,7 +4,7 @@ const fastify = require('fastify')({
 const db = require('./db');
 const bcrypt = require('bcrypt');
 const fastifyCookie = require('fastify-cookie');
-const fastifyCors = require('fastify-cors');
+const fastifyCors = require('@fastify/cors');
 
 fastify.register(fastifyCookie, {
   secret: 'supersecretkey',

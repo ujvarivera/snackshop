@@ -20,11 +20,11 @@
   "homepage": "https://github.com/ujvarivera/snackshop#readme",
   "description": "",
   "dependencies": {
+    "@fastify/cors": "^11.0.1",
     "bcrypt": "^6.0.0",
     "better-sqlite3": "^12.2.0",
     "fastify": "^5.4.0",
     "fastify-cookie": "^5.6.1",
-    "fastify-cors": "^6.0.3",
     "fastify-swagger": "^5.1.1",
     "uuid": "^11.1.0"
   },
