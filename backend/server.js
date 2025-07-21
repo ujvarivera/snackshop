@@ -1,12 +1,13 @@
 const fastify = require('fastify')({
     logger: true,
 });
+const db = require('./db');
 
 const PORT = 3000;
 
-const products = require('./products');
-
 fastify.get('/api/products', (req, res) => {    
+    const stmt = db.prepare('SELECT * FROM products');
+    const products = stmt.all();
     res.send(products);
 });
 
