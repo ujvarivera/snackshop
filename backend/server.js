@@ -3,8 +3,44 @@ const fastify = require('fastify')({
 });
 const db = require('./db');
 const bcrypt = require('bcrypt');
+const fastifyCookie = require('fastify-cookie');
+
+fastify.register(fastifyCookie, {
+  secret: 'supersecretkey',
+  parseOptions: {}
+});
 
 const PORT = 3000;
+
+const checkAdmin = async (req, reply) => {
+  const sessionCookie = req.cookies.session;
+
+  if (!sessionCookie) {
+    return reply.status(401).send({ error: 'Not authenticated' });
+  }
+
+  let sessionData;
+  try {
+    // verify & unsign cookie
+    sessionData = req.unsignCookie(sessionCookie);
+
+    if (!sessionData.valid) {
+      throw new Error('Invalid cookie');
+    }
+
+    const { userId, isAdmin } = JSON.parse(sessionData.value);
+
+    if (!isAdmin) {
+      return reply.status(403).send({ error: 'Admin access required' });
+    }
+
+    req.user = { id: userId, isAdmin };
+
+  } catch {
+    return reply.status(401).send({ error: 'Invalid session' });
+  }
+};
+
 
 fastify.get('/api/products', (req, res) => {    
     const stmt = db.prepare('SELECT * FROM products');
@@ -12,13 +48,7 @@ fastify.get('/api/products', (req, res) => {
     res.send(products);
 });
 
-fastify.post('/api/products', async (req, res) => {
-    
-    // if not logged in
-
-    // if not admin
-
-    // else
+fastify.post('/api/products', { preHandler: checkAdmin }, async (req, res) => {
     const { name, price, stock } = req.body;
 
     if (name == null || price == null || stock == null) {
@@ -34,7 +64,7 @@ fastify.post('/api/products', async (req, res) => {
     return res.send({ id: result.lastInsertRowid, name, price, stock });
 });
 
-fastify.put('/api/products/:id', async (req, res) => {
+fastify.put('/api/products/:id', { preHandler: checkAdmin }, async (req, res) => {
     const { id } = req.params;
     const { name, price, stock } = req.body;
 
@@ -86,7 +116,7 @@ fastify.put('/api/products/:id', async (req, res) => {
     }
 });
 
-fastify.delete('/api/products/:id', async (req, res) => {
+fastify.delete('/api/products/:id', { preHandler: checkAdmin }, async (req, res) => {
   const { id } = req.params;
 
   if (!id) {
@@ -164,7 +194,7 @@ fastify.post('/api/orders', async (req, res) => {
   }
 });
 
-fastify.get('/api/orders', async (req, res) => {
+fastify.get('/api/orders', { preHandler: checkAdmin }, async (req, res) => {
   try {
     // Get all orders
     const orders = db.prepare('SELECT * FROM orders').all();
@@ -235,7 +265,15 @@ fastify.post('/api/login', async (req, res) => {
       return res.send({ authenticated: false, isAdmin: false });
     }
 
-    return res.send({ authenticated: true, isAdmin: Boolean(user.is_admin) });
+    return res
+        .setCookie('session', JSON.stringify({ userId: user.id, isAdmin: user.is_admin }), {
+            path: '/',
+            httpOnly: true, // cookie not accessible via client JS
+            secure: false, // set true if HTTPS
+            signed: true,
+            maxAge: 60 * 60 * 24 // 1 day
+        })
+        .send({ authenticated: true, isAdmin: Boolean(user.is_admin) });
   } catch (err) {
     return res.status(500).send({ error: 'Login failed', details: err.message });
   }
