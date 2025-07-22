@@ -22,10 +22,13 @@ const Login = () => {
         });
 
         if (res.data.authenticated) {
-            setUser({
+            const userData = {
+                // id: res.data.userId,
                 name,
                 isAdmin: res.data.isAdmin,
-            });
+            };
+            setUser(userData);
+            localStorage.setItem('user', JSON.stringify(userData));
             navigate('/products');
         } else {
             setMessage('Login failed');
