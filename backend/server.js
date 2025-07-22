@@ -301,7 +301,7 @@ fastify.post('/api/login', async (req, res) => {
             signed: true,
             maxAge: 60 * 60 * 24 // 1 day
         })
-        .send({ authenticated: true, isAdmin: Boolean(user.is_admin) });
+        .send({ authenticated: true, isAdmin: Boolean(user.is_admin), userId: user.id });
   } catch (err) {
     return res.status(500).send({ error: 'Login failed', details: err.message });
   }

@@ -23,7 +23,7 @@ const Login = () => {
 
         if (res.data.authenticated) {
             const userData = {
-                // id: res.data.userId,
+                id: res.data.userId,
                 name,
                 isAdmin: res.data.isAdmin,
             };
