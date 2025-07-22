@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 
 const Products = () => {
@@ -19,6 +19,12 @@ const Products = () => {
         <div>
             <h2>Welcome, {user?.name}</h2>
             {user?.isAdmin && <p>You are an admin.</p>}
+            {user?.isAdmin && (
+                <NavLink to="/add-product">
+                    <button>Add New Product</button>
+                </NavLink>
+            )}
+
             <ul>
                 {products.map(p => (
                 <li key={p.id}>{p.name} - {p.price} {p.currency}</li>
