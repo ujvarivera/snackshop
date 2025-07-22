@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
+import { useCart } from './context/CartContext';
 
 const Products = () => {
     const { user, logout } = useAuth();
+    const { addToCart } = useCart();
     const navigate = useNavigate();
     const [products, setProducts] = useState([]);
 
@@ -51,6 +53,10 @@ const Products = () => {
                 </NavLink>
             )}
 
+            {user && !user.isAdmin && (
+                <NavLink to="/cart">🛒 Cart</NavLink>
+            )}
+
             <ul>
                 {products.map(product => (
                     <li key={product.id}>
@@ -63,6 +69,10 @@ const Products = () => {
                                     Delete
                                 </button>
                             </div>
+                        )}
+
+                        {user && !user.isAdmin && (
+                            <button onClick={() => addToCart(product)}>➕</button>
                         )}
                     </li>
                 ))}

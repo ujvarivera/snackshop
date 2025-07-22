@@ -5,6 +5,7 @@ import Products from './Products'
 import RegisterForm from './RegisterForm';
 import AddProductForm from './AddProductForm';
 import EditProductPage from './EditProductPage';
+import CartPage from './CartPage';
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
         <Route path="/add-product" element={<AddProductForm />} />
         <Route path="/products" element={<Products />} />
         <Route path="/edit-product/:id" element={<EditProductPage />} />
+        <Route path="/cart" element={<CartPage />} />
       </Routes>
     </BrowserRouter>
   )
