@@ -37,8 +37,16 @@ const Products = () => {
             )}
 
             <ul>
-                {products.map(p => (
-                <li key={p.id}>{p.name} - {p.price} {p.currency}</li>
+                {products.map(product => (
+                <li key={product.id}>
+                    {product.name} - {product.price} {product.currency} ({product.stock} in stock)
+
+                    {user?.isAdmin && (
+                    <NavLink to={`/edit-product/${product.id}`} style={{ marginLeft: '1rem' }}>
+                        <button>Edit</button>
+                    </NavLink>
+                    )}
+                </li>
                 ))}
             </ul>
         </div>

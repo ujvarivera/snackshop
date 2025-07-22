@@ -15,6 +15,7 @@ const ORIGIN = 'http://localhost:5173'; // where React runs
 fastify.register(fastifyCors, {
   origin: ORIGIN,
   credentials: true, // allow cookies to be sent
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 });
 
 const PORT = 3000;
@@ -143,6 +144,24 @@ fastify.delete('/api/products/:id', { preHandler: checkAdmin }, async (req, res)
     res.status(500).send({ error: 'Failed to delete product', details: err.message });
   }
 });
+
+fastify.get('/api/products/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const getProduct = db.prepare('SELECT id, name, price, stock FROM products WHERE id = ?');
+    const product = getProduct.get(id);
+
+    if (!product) {
+      return res.status(404).send({ error: 'Product not found' });
+    }
+
+    return res.send(product);
+  } catch (err) {
+    return res.status(500).send({ error: 'Failed to fetch product', details: err.message });
+  }
+});
+
 
 fastify.post('/api/orders', async (req, res) => {
   const { user_id, items } = req.body;
