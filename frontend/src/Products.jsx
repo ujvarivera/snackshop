@@ -12,13 +12,28 @@ const Products = () => {
         axios.get(`${import.meta.env.VITE_API_URL}/products`, {
             withCredentials: true,
         })
-        .then(res => setProducts(res.data))
-        .catch(err => console.error(err));
+            .then(res => setProducts(res.data))
+            .catch(err => console.error(err));
     }, []);
 
     const handleLogout = () => {
         logout();
         navigate('/');
+    };
+
+    const deleteProduct = async (id) => {
+        const confirmDelete = window.confirm('Are you sure you want to delete this snack?');
+
+        if (!confirmDelete) return;
+
+        try {
+            await axios.delete(`${import.meta.env.VITE_API_URL}/products/${id}`, {
+                withCredentials: true,
+            });
+            setProducts(prev => prev.filter(product => product.id !== id));
+        } catch (err) {
+            console.error('Delete failed', err);
+        }
     };
 
     return (
@@ -38,15 +53,18 @@ const Products = () => {
 
             <ul>
                 {products.map(product => (
-                <li key={product.id}>
-                    {product.name} - {product.price} {product.currency} ({product.stock} in stock)
+                    <li key={product.id}>
+                        {product.name} - {product.price} {product.currency} ({product.stock} in stock)
 
-                    {user?.isAdmin && (
-                    <NavLink to={`/edit-product/${product.id}`} style={{ marginLeft: '1rem' }}>
-                        <button>Edit</button>
-                    </NavLink>
-                    )}
-                </li>
+                        {user?.isAdmin && (
+                            <div style={{ marginTop: '5px' }}>
+                                <button onClick={() => navigate(`/edit-product/${product.id}`)}>Edit</button>
+                                <button onClick={() => deleteProduct(product.id)} style={{ marginLeft: '10px', color: 'red' }}>
+                                    Delete
+                                </button>
+                            </div>
+                        )}
+                    </li>
                 ))}
             </ul>
         </div>
