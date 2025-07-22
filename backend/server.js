@@ -228,6 +228,7 @@ fastify.get('/api/orders', { preHandler: checkAdmin }, async (req, res) => {
 
 fastify.post('/api/register', async (req, res) => {
   const { name, password } = req.body;
+  // console.log(req.body);
 
   if (!name || !password) {
     return res.status(400).send({ error: 'Name and password are required' });
@@ -238,15 +239,16 @@ fastify.post('/api/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const insertUser = db.prepare(`
-      INSERT INTO users (name, password)
-      VALUES (?, ?)
+      INSERT INTO users (name, password, is_admin)
+      VALUES (?, ?, ?)
     `);
 
-    const result = insertUser.run(name, hashedPassword);
+    const result = insertUser.run(name, hashedPassword, 0);
 
     return res.status(201).send({ id: result.lastInsertRowid, name });
   } catch (err) {
-    return res.status(500).send({ error: 'Failed to register user', details: err.message });
+      console.error('Register error:', err);
+      return res.status(500).send({ error: 'Failed to register user', details: err.message });
   }
 });
 

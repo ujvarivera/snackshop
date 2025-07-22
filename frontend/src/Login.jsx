@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 
 const Login = () => {
@@ -14,7 +14,7 @@ const Login = () => {
         e.preventDefault();
 
         try {
-        const res = await axios.post(import.meta.env.VITE_LOGIN, {
+        const res = await axios.post(`${import.meta.env.VITE_API_URL}/login`, {
             name,
             password
         }, {
@@ -54,6 +54,7 @@ const Login = () => {
             <button type="submit">Login</button>
         </form>
         <p>{message}</p>
+        <p>Don't have an account? <NavLink to="/register">Register here</NavLink></p>
         </div>
     );
     };
