@@ -6,6 +6,7 @@ import RegisterForm from './RegisterForm';
 import AddProductForm from './AddProductForm';
 import EditProductPage from './EditProductPage';
 import CartPage from './CartPage';
+import Orders from './Orders';
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
         <Route path="/products" element={<Products />} />
         <Route path="/edit-product/:id" element={<EditProductPage />} />
         <Route path="/cart" element={<CartPage />} />
+        <Route path="/orders" element={<Orders />} />
       </Routes>
     </BrowserRouter>
   )

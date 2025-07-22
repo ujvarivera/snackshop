@@ -1,5 +1,5 @@
 const fastify = require('fastify')({
-    logger: true,
+  logger: true,
 });
 const db = require('./db');
 const bcrypt = require('bcrypt');
@@ -50,78 +50,78 @@ const checkAdmin = async (req, reply) => {
 };
 
 
-fastify.get('/api/products', (req, res) => {    
-    const stmt = db.prepare('SELECT * FROM products');
-    const products = stmt.all();
-    res.send(products);
+fastify.get('/api/products', (req, res) => {
+  const stmt = db.prepare('SELECT * FROM products');
+  const products = stmt.all();
+  res.send(products);
 });
 
 fastify.post('/api/products', { preHandler: checkAdmin }, async (req, res) => {
-    const { name, price, stock } = req.body;
+  const { name, price, stock } = req.body;
 
-    if (name == null || price == null || stock == null) {
-        return res.status(400).send({ error: 'Missing required fields' });
-    }
+  if (name == null || price == null || stock == null) {
+    return res.status(400).send({ error: 'Missing required fields' });
+  }
 
-    const insert = db.prepare(`
+  const insert = db.prepare(`
         INSERT INTO products (name, price, stock)
         VALUES (?, ?, ?)
     `);
-    const result = insert.run(name, price, stock);
+  const result = insert.run(name, price, stock);
 
-    return res.send({ id: result.lastInsertRowid, name, price, stock });
+  return res.send({ id: result.lastInsertRowid, name, price, stock });
 });
 
 fastify.put('/api/products/:id', { preHandler: checkAdmin }, async (req, res) => {
-    const { id } = req.params;
-    const { name, price, stock } = req.body;
+  const { id } = req.params;
+  const { name, price, stock } = req.body;
 
-    // Validate id
-    if (!id) {
-        return res.status(400).send({ error: 'Missing product ID' });
-    }
+  // Validate id
+  if (!id) {
+    return res.status(400).send({ error: 'Missing product ID' });
+  }
 
-    if (!name && price == null && stock == null) {
-        return res.status(400).send({ error: 'At least one field (name, price, stock) is required to update' });
-    }
+  if (!name && price == null && stock == null) {
+    return res.status(400).send({ error: 'At least one field (name, price, stock) is required to update' });
+  }
 
-    // Build dynamic query parts
-    const fields = [];
-    const values = [];
+  // Build dynamic query parts
+  const fields = [];
+  const values = [];
 
-    if (name) {
-        fields.push('name = ?');
-        values.push(name);
-    }
-    if (price != null) {
-        fields.push('price = ?');
-        values.push(price);
-    }
-    if (stock != null) {
-        fields.push('stock = ?');
-        values.push(stock);
-    }
+  if (name) {
+    fields.push('name = ?');
+    values.push(name);
+  }
+  if (price != null) {
+    fields.push('price = ?');
+    values.push(price);
+  }
+  if (stock != null) {
+    fields.push('stock = ?');
+    values.push(stock);
+  }
 
-    values.push(id);  // for WHERE id=?
+  values.push(id);  // for WHERE id=?
 
-    try {
-        const update = db.prepare(`
+  try {
+    const update = db.prepare(`
             UPDATE products SET ${fields.join(', ')} WHERE id = ?
         `);
-        const result = update.run(...values);
+    const result = update.run(...values);
 
-        if (result.changes === 0) {
-            return res.status(404).send({ error: 'Product not found' });
-        }
-
-        // Return updated product
-        const select = db.prepare('SELECT * FROM products WHERE id = ?');
-        const updatedProduct = select.get(id);
-
-        res.send(updatedProduct);
-    } catch (err) {
-        res.status(500).send({ error: 'Failed to update product', details: err.message });
+    if (result.changes === 0) {
+      return res.status(404).send({ error: 'Product not found' });
     }
+
+    // Return updated product
+    const select = db.prepare('SELECT * FROM products WHERE id = ?');
+    const updatedProduct = select.get(id);
+
+    res.send(updatedProduct);
+  } catch (err) {
+    res.status(500).send({ error: 'Failed to update product', details: err.message });
+  }
 });
 
 fastify.delete('/api/products/:id', { preHandler: checkAdmin }, async (req, res) => {
@@ -223,18 +223,28 @@ fastify.post('/api/orders', async (req, res) => {
 fastify.get('/api/orders', { preHandler: checkAdmin }, async (req, res) => {
   try {
     // Get all orders
-    const orders = db.prepare('SELECT * FROM orders').all();
+    const orders = db.prepare(`
+      SELECT orders.id, orders.user_id, orders.created_at, users.name as user_name
+      FROM orders
+      JOIN users ON orders.user_id = users.id
+    `).all();
 
     // For each order, fetch items
-    const getItems = db.prepare('SELECT product_id, quantity FROM order_items WHERE order_id = ?');
+    const getItems = db.prepare(`
+      SELECT order_items.product_id, order_items.quantity, products.name as product_name, products.price
+      FROM order_items
+      JOIN products ON order_items.product_id = products.id
+      WHERE order_items.order_id = ?
+    `);
 
     const ordersWithItems = orders.map(order => {
       const items = getItems.all(order.id);
       return {
         id: order.id,
         user_id: order.user_id,
+        user_name: order.user_name,
         created_at: order.created_at,
-        items,
+        items: items, // includes product_name, price, quantity
       };
     });
 
@@ -266,8 +276,8 @@ fastify.post('/api/register', async (req, res) => {
 
     return res.status(201).send({ id: result.lastInsertRowid, name });
   } catch (err) {
-      console.error('Register error:', err);
-      return res.status(500).send({ error: 'Failed to register user', details: err.message });
+    console.error('Register error:', err);
+    return res.status(500).send({ error: 'Failed to register user', details: err.message });
   }
 });
 
@@ -294,26 +304,26 @@ fastify.post('/api/login', async (req, res) => {
     }
 
     return res
-        .setCookie('session', JSON.stringify({ userId: user.id, isAdmin: user.is_admin }), {
-            path: '/',
-            httpOnly: true, // cookie not accessible via client JS
-            secure: false, // set true if HTTPS
-            signed: true,
-            maxAge: 60 * 60 * 24 // 1 day
-        })
-        .send({ authenticated: true, isAdmin: Boolean(user.is_admin), userId: user.id });
+      .setCookie('session', JSON.stringify({ userId: user.id, isAdmin: user.is_admin }), {
+        path: '/',
+        httpOnly: true, // cookie not accessible via client JS
+        secure: false, // set true if HTTPS
+        signed: true,
+        maxAge: 60 * 60 * 24 // 1 day
+      })
+      .send({ authenticated: true, isAdmin: Boolean(user.is_admin), userId: user.id });
   } catch (err) {
     return res.status(500).send({ error: 'Login failed', details: err.message });
   }
 });
 
 const start = async () => {
-    try {
-        await fastify.listen({ port: PORT });
-    } catch (error) {
-        fastify.log.error(error);
-        process.exit(1);
-    }
+  try {
+    await fastify.listen({ port: PORT });
+  } catch (error) {
+    fastify.log.error(error);
+    process.exit(1);
+  }
 };
 
 start();
