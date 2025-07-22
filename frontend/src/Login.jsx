@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
 
 const Login = () => {
+    const { setUser } = useAuth();
     const navigate = useNavigate();
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
@@ -20,6 +22,10 @@ const Login = () => {
         });
 
         if (res.data.authenticated) {
+            setUser({
+                name,
+                isAdmin: res.data.isAdmin,
+            });
             navigate('/products');
         } else {
             setMessage('Login failed');
