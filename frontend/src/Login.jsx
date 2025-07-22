@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+    const navigate = useNavigate();
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
@@ -10,7 +12,7 @@ const Login = () => {
         e.preventDefault();
 
         try {
-        const res = await axios.post('http://localhost:3000/api/login', {
+        const res = await axios.post(import.meta.env.VITE_LOGIN, {
             name,
             password
         }, {
@@ -18,7 +20,7 @@ const Login = () => {
         });
 
         if (res.data.authenticated) {
-            setMessage(`Welcome! Admin: ${res.data.isAdmin}`);
+            navigate('/products');
         } else {
             setMessage('Login failed');
         }
@@ -47,4 +49,4 @@ const Login = () => {
     );
     };
 
-    export default Login;
+export default Login;
