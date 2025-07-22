@@ -4,7 +4,8 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 
 const Products = () => {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
@@ -15,10 +16,20 @@ const Products = () => {
         .catch(err => console.error(err));
     }, []);
 
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
+
     return (
         <div>
             <h2>Welcome, {user?.name}</h2>
             {user?.isAdmin && <p>You are an admin.</p>}
+
+            <button onClick={handleLogout} style={{ marginLeft: '1rem' }}>
+                Logout
+            </button>
+
             {user?.isAdmin && (
                 <NavLink to="/add-product">
                     <button>Add New Product</button>
