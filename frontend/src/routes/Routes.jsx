@@ -14,5 +14,5 @@ export function PrivateRoute() {
 
 export function AdminRoute() {
   const { user } = useAuth();
-  return user?.role === 'admin' ? <Outlet /> : <Navigate to="/" />;
+  return user?.isAdmin === true ? <Outlet /> : <Navigate to="/" />;
 }
