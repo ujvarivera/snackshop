@@ -1,10 +1,11 @@
 import React from 'react';
 import { AppBar, Toolbar, Button, Box } from '@mui/material';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
     const { user, logout } = useAuth();
+    const navigate = useNavigate();
 
     const handleLogout = async () => {
         logout();
@@ -30,13 +31,27 @@ export default function Navbar() {
                     >
                         Products
                     </Button>
-                    <Button
-                        component={NavLink}
-                        to="/orders"
-                        sx={{ color: 'white', fontWeight: 'bold' }}
-                    >
-                        Orders
-                    </Button>
+                    {
+                        user?.isAdmin &&
+                        <Button
+                            component={NavLink}
+                            to="/orders"
+                            sx={{ color: 'white', fontWeight: 'bold' }}
+                        >
+                            Orders
+                        </Button>
+                    }
+
+                    {
+                        (user && !user.isAdmin) &&
+                        <Button
+                            component={NavLink}
+                            to="/cart"
+                            sx={{ color: 'white', fontWeight: 'bold' }}
+                        >
+                            🛒 Cart
+                        </Button>
+                    }
                 </Box>
 
                 {user && (

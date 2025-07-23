@@ -3,9 +3,19 @@ import axios from 'axios';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { useCart } from './context/CartContext';
+import {
+    Grid,
+    Card,
+    CardMedia,
+    CardContent,
+    Typography,
+    CardActions,
+    Button,
+    Box,
+} from '@mui/material';
 
 const Products = () => {
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
     const { addToCart } = useCart();
     const navigate = useNavigate();
     const [products, setProducts] = useState([]);
@@ -17,11 +27,6 @@ const Products = () => {
             .then(res => setProducts(res.data))
             .catch(err => console.error(err));
     }, []);
-
-    const handleLogout = () => {
-        logout();
-        navigate('/');
-    };
 
     const deleteProduct = async (id) => {
         const confirmDelete = window.confirm('Are you sure you want to delete this snack?');
@@ -39,45 +44,76 @@ const Products = () => {
     };
 
     return (
-        <div>
-            <h2>Welcome, {user?.name}</h2>
-            {user?.isAdmin && <p>You are an admin.</p>}
-
-            <button onClick={handleLogout} style={{ marginLeft: '1rem' }}>
-                Logout
-            </button>
-
+        <>
             {user?.isAdmin && (
-                <NavLink to="/add-product">
-                    <button>Add New Product</button>
-                </NavLink>
+                <Box sx={{ mb: 3, textAlign: 'left', px: 3, my: 2 }}>
+                    <Button
+                        component={NavLink}
+                        to="/add-product"
+                        variant="contained"
+                        color="primary"
+                    >
+                        Add New Product
+                    </Button>
+                </Box>
             )}
 
-            {user && !user.isAdmin && (
-                <NavLink to="/cart">🛒 Cart</NavLink>
-            )}
-
-            <ul>
+            <Box
+                sx={{
+                    display: 'grid',
+                    gap: 3,
+                    px: 3,
+                    gridTemplateColumns: {
+                        xs: '1fr',
+                        sm: '1fr 1fr',
+                        md: '1fr 1fr 1fr', // 3 columns on medium and up
+                    },
+                }}
+            >
                 {products.map(product => (
-                    <li key={product.id}>
-                        {product.name} - {product.price} {product.currency} ({product.stock} in stock)
-
-                        {user?.isAdmin && (
-                            <div style={{ marginTop: '5px' }}>
-                                <button onClick={() => navigate(`/edit-product/${product.id}`)}>Edit</button>
-                                <button onClick={() => deleteProduct(product.id)} style={{ marginLeft: '10px', color: 'red' }}>
-                                    Delete
-                                </button>
-                            </div>
-                        )}
-
-                        {user && !user.isAdmin && (
-                            <button onClick={() => addToCart(product)}>➕</button>
-                        )}
-                    </li>
+                    <Grid key={product.id} sx={{ flexBasis: { xs: '100%', sm: '50%', md: '33.33%' } }}>
+                        <Card sx={{ maxWidth: 345 }}>
+                            <CardMedia
+                                component="img"
+                                height="140"
+                                image="/snack.jpg"
+                                alt={product.name}
+                            />
+                            <CardContent>
+                                <Typography gutterBottom variant="h6" component="div">
+                                    {product.name}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Price: {product.price} {product.currency} <br />
+                                    Stock: {product.stock}
+                                </Typography>
+                            </CardContent>
+                            <CardActions>
+                                {user?.isAdmin ? (
+                                    <>
+                                        <Button size="small" onClick={() => navigate(`/edit-product/${product.id}`)}>
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            size="small"
+                                            color="error"
+                                            type="button"
+                                            onClick={() => deleteProduct(product.id)}
+                                        >
+                                            Delete
+                                        </Button>
+                                    </>
+                                ) : user ? (
+                                    <Button size="small" onClick={() => addToCart(product)}>
+                                        ➕ Add to Cart
+                                    </Button>
+                                ) : null}
+                            </CardActions>
+                        </Card>
+                    </Grid>
                 ))}
-            </ul>
-        </div>
+            </Box>
+        </>
     )
 }
 
