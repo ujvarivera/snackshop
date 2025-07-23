@@ -2,6 +2,17 @@ import { useCart } from './context/CartContext';
 import { useAuth } from './context/AuthContext';
 import { useState } from 'react';
 import axios from 'axios';
+import {
+    Box,
+    Typography,
+    TextField,
+    IconButton,
+    Button,
+    Alert,
+    Paper,
+    Divider,
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const CartPage = () => {
     const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
@@ -36,33 +47,82 @@ const CartPage = () => {
     };
 
     return (
-        <div>
-            <h2>Your Cart</h2>
+        <Box sx={{ maxWidth: 800, mx: 'auto', mt: 8, px: 3 }}>
+            <Typography variant="h5" fontWeight="bold" gutterBottom>
+                Your Cart
+            </Typography>
+
             {cart.length === 0 ? (
-                <p>Your cart is empty.</p>
+                <Typography variant="body1">Your cart is empty.</Typography>
             ) : (
                 <>
-                    {cart.map(item => (
-                        <div key={item.id}>
-                            <strong>{item.name}</strong> — ${item.price}
-                            <input
+                    {cart.map((item) => (
+                        <Paper
+                            key={item.id}
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                p: 2,
+                                mb: 2,
+                            }}
+                            elevation={2}
+                        >
+                            <Box>
+                                <Typography fontWeight="bold">{item.name}</Typography>
+                                <Typography variant="body2">${item.price}</Typography>
+                            </Box>
+
+                            <TextField
                                 type="number"
-                                min="1"
-                                max={item.stock}
+                                label="Quantity"
+                                size="small"
+                                inputProps={{
+                                    min: 1,
+                                    max: item.stock,
+                                }}
                                 value={item.quantity}
-                                onChange={e => updateQuantity(item.id, parseInt(e.target.value), item.stock)}
+                                onChange={(e) =>
+                                    updateQuantity(item.id, parseInt(e.target.value), item.stock)
+                                }
+                                sx={{ width: 100, mx: 2 }}
                             />
-                            <button onClick={() => removeFromCart(item.id)}>🗑️</button>
-                        </div>
+
+                            <IconButton
+                                onClick={() => removeFromCart(item.id)}
+                                color="error"
+                                aria-label="remove item"
+                            >
+                                <DeleteIcon />
+                            </IconButton>
+                        </Paper>
                     ))}
 
-                    <button onClick={handleOrder}>✅ Place Order</button>
+                    <Divider sx={{ my: 3 }} />
+
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleOrder}
+                        fullWidth
+                        size="large"
+                    >
+                        ✅ Place Order
+                    </Button>
                 </>
             )}
 
-            {message && <p style={{ color: 'green' }}>{message}</p>}
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-        </div>
+            {message && (
+                <Alert severity="success" sx={{ mt: 3 }}>
+                    {message}
+                </Alert>
+            )}
+            {error && (
+                <Alert severity="error" sx={{ mt: 3 }}>
+                    {error}
+                </Alert>
+            )}
+        </Box>
     );
 };
 
