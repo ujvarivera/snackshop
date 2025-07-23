@@ -7,19 +7,26 @@ import AddProductForm from './AddProductForm';
 import EditProductPage from './EditProductPage';
 import CartPage from './CartPage';
 import Orders from './Orders';
+import { PublicRoute, PrivateRoute, AdminRoute } from './routes/Routes';
 
 function App() {
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<RegisterForm />} />
-        <Route path="/add-product" element={<AddProductForm />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/edit-product/:id" element={<EditProductPage />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="/orders" element={<Orders />} />
+        <Route element={<PublicRoute />}>
+          <Route path="/" element={<Login />} />
+          <Route path="/register" element={<RegisterForm />} />
+        </Route>
+        <Route element={<PrivateRoute />}>
+          <Route path="/products" element={<Products />} />
+          <Route path="/cart" element={<CartPage />} />
+        </Route>
+        <Route element={<AdminRoute />}>
+          <Route path="/add-product" element={<AddProductForm />} />
+          <Route path="/edit-product/:id" element={<EditProductPage />} />
+          <Route path="/orders" element={<Orders />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   )
