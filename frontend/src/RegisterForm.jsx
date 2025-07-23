@@ -25,20 +25,27 @@ export default function RegisterForm() {
     setError('');
 
     try {
-        const res = await axios.post(`${import.meta.env.VITE_API_URL}/register`, {
-            name,
-            password,
-        }, { withCredentials: true });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/register`, {
+        name,
+        password,
+      }, { withCredentials: true });
 
-        navigate('/');
-        } catch (err) {
-        setError(err.response?.data?.error || 'Something went wrong');
-        }
+      navigate('/');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Something went wrong');
     }
+  }
 
   return (
-     <Grid>
-      <Grid component={Paper} elevation={6} square>
+    <Grid>
+      <Grid component={Paper} elevation={6} square
+        sx={{
+          maxWidth: 'fit-content',
+          mx: 'auto',
+          p: 2,
+          mt: 4,
+        }}
+      >
         <Box
           sx={{
             my: 8,

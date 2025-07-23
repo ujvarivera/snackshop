@@ -54,7 +54,13 @@ const Login = () => {
 
     return (
         <Grid>
-            <Grid component={Paper} elevation={6} square>
+            <Grid component={Paper} elevation={6} square
+                sx={{
+                    maxWidth: 'fit-content',
+                    mx: 'auto',
+                    p: 2,
+                    mt: 4, 
+                }}>
                 <Box
                     sx={{
                         my: 8,
@@ -112,7 +118,7 @@ const Login = () => {
                     </Box>
                 </Box>
             </Grid>
-            <Typography variant="body2" sx={{ mt: 2 }}>
+            <Typography variant="body2" sx={{ mt: 2 }} align="center">
                 Don’t have an account?{' '}
                 <Link
                     component={NavLink}

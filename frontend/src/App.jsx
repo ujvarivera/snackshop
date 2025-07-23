@@ -8,11 +8,13 @@ import EditProductPage from './EditProductPage';
 import CartPage from './CartPage';
 import Orders from './Orders';
 import { PublicRoute, PrivateRoute, AdminRoute } from './routes/Routes';
+import Navbar from './layouts/NavBar';
 
 function App() {
 
   return (
     <BrowserRouter>
+      <Navbar />
       <Routes>
         <Route element={<PublicRoute />}>
           <Route path="/" element={<Login />} />
