@@ -2,6 +2,14 @@ import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import axios from 'axios';
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  Paper,
+} from '@mui/material';
 
 const AddProductForm = () => {
   const { user } = useAuth();
@@ -35,17 +43,59 @@ const AddProductForm = () => {
   };
 
   return (
-    <div>
-      <h2>Add New Product</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <Box
+      component={Paper}
+      elevation={3}
+      sx={{
+        maxWidth: 500,
+        mx: 'auto',
+        mt: 8,
+        p: 4,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 2,
+      }}
+    >
+      <Typography variant="h5" fontWeight="bold" gutterBottom>
+        Add New Product
+      </Typography>
+
+      {error && <Alert severity="error">{error}</Alert>}
 
       <form onSubmit={handleSubmit}>
-        <input type="text" name="name" placeholder="Name" value={form.name} onChange={handleChange} required />
-        <input type="number" name="price" placeholder="Price" value={form.price} onChange={handleChange} required />
-        <input type="number" name="stock" placeholder="Stock" value={form.stock} onChange={handleChange} required />
-        <button type="submit">Add Product</button>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <TextField
+            label="Name"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            required
+            fullWidth
+          />
+          <TextField
+            label="Price"
+            name="price"
+            type="number"
+            value={form.price}
+            onChange={handleChange}
+            required
+            fullWidth
+          />
+          <TextField
+            label="Stock"
+            name="stock"
+            type="number"
+            value={form.stock}
+            onChange={handleChange}
+            required
+            fullWidth
+          />
+          <Button type="submit" variant="contained" color="primary">
+            Add Product
+          </Button>
+        </Box>
       </form>
-    </div>
+    </Box>
   );
 };
 
