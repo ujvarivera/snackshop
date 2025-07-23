@@ -68,6 +68,7 @@ const Products = () => {
                         sm: '1fr 1fr',
                         md: '1fr 1fr 1fr', // 3 columns on medium and up
                     },
+                    pt: 4
                 }}
             >
                 {products.map(product => (

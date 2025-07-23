@@ -1,6 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import {
+    Box,
+    Typography,
+    TextField,
+    Button,
+    Alert,
+    Paper,
+} from '@mui/material';
 
 const EditProductPage = () => {
     const { id } = useParams();
@@ -36,38 +44,59 @@ const EditProductPage = () => {
     };
 
     return (
-        <div>
-            <h2>Edit Product</h2>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+         <Box
+            component={Paper}
+            elevation={3}
+            sx={{
+                maxWidth: 500,
+                mx: 'auto',
+                mt: 8,
+                p: 4,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+            }}
+        >
+            <Typography variant="h5" fontWeight="bold" gutterBottom>
+                Edit Product
+            </Typography>
+
+            {error && <Alert severity="error">{error}</Alert>}
 
             <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="Name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    type="number"
-                    name="price"
-                    placeholder="Price"
-                    value={formData.price}
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    type="number"
-                    name="stock"
-                    placeholder="Stock"
-                    value={formData.stock}
-                    onChange={handleChange}
-                    required
-                />
-                <button type="submit">Update Product</button>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <TextField
+                        label="Name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                        fullWidth
+                    />
+                    <TextField
+                        label="Price"
+                        name="price"
+                        type="number"
+                        value={formData.price}
+                        onChange={handleChange}
+                        required
+                        fullWidth
+                    />
+                    <TextField
+                        label="Stock"
+                        name="stock"
+                        type="number"
+                        value={formData.stock}
+                        onChange={handleChange}
+                        required
+                        fullWidth
+                    />
+                    <Button type="submit" variant="contained" color="primary">
+                        Update Product
+                    </Button>
+                </Box>
             </form>
-        </div>
+        </Box>
     );
 };
 
