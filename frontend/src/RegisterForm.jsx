@@ -1,6 +1,18 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, NavLink } from 'react-router-dom';
+import {
+  Avatar,
+  Box,
+  Button,
+  Grid,
+  Link,
+  Paper,
+  TextField,
+  Typography,
+  Alert,
+} from '@mui/material';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
 export default function RegisterForm() {
   const [name, setName] = useState('');
@@ -25,27 +37,76 @@ export default function RegisterForm() {
     }
 
   return (
-    <div>
-      <h2>Register</h2>
-      <form onSubmit={handleRegister}>
-        <input
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          required
-        /><br />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-        /><br />
-        <button type="submit">Register</button>
-      </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <p>Already have an account? <NavLink to="/">Login here</NavLink></p>
-    </div>
+     <Grid>
+      <Grid component={Paper} elevation={6} square>
+        <Box
+          sx={{
+            my: 8,
+            mx: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Register
+          </Typography>
+
+          <Box component="form" noValidate sx={{ mt: 1 }} onSubmit={handleRegister}>
+            {error && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {error}
+              </Alert>
+            )}
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="name"
+              label="Username"
+              name="name"
+              autoComplete="username"
+              autoFocus
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Register
+            </Button>
+          </Box>
+        </Box>
+      </Grid>
+
+      <Typography variant="body2" sx={{ mt: 2, textAlign: 'center' }}>
+        Already have an account?{' '}
+        <Link
+          component={NavLink}
+          to="/"
+          sx={{ color: '#002fffff', fontWeight: 'bold' }}
+        >
+          Sign In
+        </Link>
+      </Typography>
+    </Grid>
   );
 }
